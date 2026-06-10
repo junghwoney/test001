@@ -5,9 +5,22 @@ import plotly.graph_objects as go
 
 st.set_page_config(page_title="전체 현황", page_icon="📊", layout="wide")
 
+def add_status(df):
+    def derive(row):
+        if pd.notna(row['완료일']):
+            return '완료'
+        elif pd.notna(row['시작일']):
+            return '진행중'
+        else:
+            return '미시작'
+    df = df.copy()
+    df['상태'] = df.apply(derive, axis=1)
+    return df
+
 @st.cache_data
 def load_data():
     df = pd.read_csv('data/온라인_수강_데이터.csv', encoding='utf-8-sig')
+    df = add_status(df)
     monthly = pd.read_csv('data/월별_통계.csv', encoding='utf-8-sig')
     return df, monthly
 
